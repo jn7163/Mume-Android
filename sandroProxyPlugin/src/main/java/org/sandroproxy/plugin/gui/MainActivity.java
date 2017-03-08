@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
                             Proxy proxy = new Proxy(framework, networkHostNameResolver, clientResolver);
                             framework.addPlugin(proxy);
                             if (true){
-                                ProxyPlugin plugin = new CustomPlugin();
+                                ProxyPlugin plugin = new CustomPlugin(getApplicationContext());
                                 proxy.addPlugin(plugin);
                             }
                             proxy.run();

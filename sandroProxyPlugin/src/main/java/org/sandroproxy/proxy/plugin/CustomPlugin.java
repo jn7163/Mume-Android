@@ -10,19 +10,22 @@ import org.sandrop.webscarab.model.ConnectionDescriptor;
 import org.sandrop.webscarab.model.HttpUrl;
 import org.sandrop.webscarab.model.Request;
 import org.sandrop.webscarab.model.Response;
-import org.sandrop.webscarab.plugin.proxy.IClientResolver;
 import org.sandrop.webscarab.plugin.proxy.ProxyPlugin;
-import org.sandroproxy.utils.network.ClientResolver;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 public class CustomPlugin extends ProxyPlugin {
-    
+    public final static String NetworkMonitor = "org.sandroproxy.proxy.BreakingNewsNetworkMonitor";
+    private Context context;
+
     private static boolean LOGD = true;
     private static String TAG = CustomPlugin.class.getName();
     private boolean _enabled = true;
     
-    public CustomPlugin() {
+    public CustomPlugin(Context c) {
+        context = c;
     }
     
     public void parseProperties() {
@@ -56,7 +59,6 @@ public class CustomPlugin extends ProxyPlugin {
             if (_enabled) {
                 // adding some header to request
                 String setCookieHeader = "Set-Cookie";
-                boolean changeResponse = false;
                 request.addHeader("X-SandroProxyPlugin", "0.9.25");
                 // sending request to server to get response
                 ConnectionDescriptor cr = request.getConnectionDescriptor();
@@ -65,20 +67,19 @@ public class CustomPlugin extends ProxyPlugin {
                 }
                 
                 HttpUrl reqUrl = request.getURL();
-                if (reqUrl != null && reqUrl.getHost() != null && reqUrl.getHost().equals("en.wikipedia.org") && reqUrl.getPath().equals("/wiki/Main_Page")){
-                    changeResponse = true; 
-                }
-                
                 Response response = _in.fetchResponse(request);
                 
                 // should we change response before goes to client
-                if (changeResponse && response != null && response.getStatus().equals("200")){
+                if (response != null && response.getStatus().equals("200")){
                     byte[] responseContentByteArr = response.getContent();
                     if (responseContentByteArr != null){
                         String responseContentStr = new String (responseContentByteArr);
-                        String changedResponse = responseContentStr.replace("<title>Wikipedia, the free encyclopedia</title>", "<title>SandroProxy: Wikipedia, the free encyclopedia </title>");
-                        response.setContent(changedResponse.getBytes());
-                        if (LOGD) Log.d(TAG, "Response content modified by plugin");
+                        Intent monitorIntent = new Intent(NetworkMonitor);
+                        monitorIntent.putExtra("type",1);
+                        monitorIntent.putExtra("url",reqUrl.toString());
+                        monitorIntent.putExtra("body",responseContentStr);
+                        context.sendBroadcast(monitorIntent);
+                        if (LOGD) Log.d(TAG, "Response content broadcasted by plugin");
                     }
                 }
                 
