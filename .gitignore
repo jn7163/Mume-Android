@@ -1,0 +1,4 @@
+sandroProxyLib/build
+sandroProxyLib/.externalNativeBuild
+sandroProxyPlugin/build
+.gradle
