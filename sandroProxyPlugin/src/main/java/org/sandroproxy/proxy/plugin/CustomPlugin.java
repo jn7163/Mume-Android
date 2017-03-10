@@ -73,13 +73,20 @@ public class CustomPlugin extends ProxyPlugin {
                 if (response != null && response.getStatus().equals("200")){
                     byte[] responseContentByteArr = response.getContent();
                     if (responseContentByteArr != null){
-                        String responseContentStr = new String (responseContentByteArr);
-                        Intent monitorIntent = new Intent(NetworkMonitor);
-                        monitorIntent.putExtra("type",1);
-                        monitorIntent.putExtra("url",reqUrl.toString());
-                        monitorIntent.putExtra("body",responseContentStr);
-                        context.sendBroadcast(monitorIntent);
-                        if (LOGD) Log.d(TAG, "Response content broadcasted by plugin");
+                        String contentType = response.getHeader("Content-Type");
+                        if (contentType == null || contentType.indexOf("image") == 0) {
+                            Log.d(TAG, "ignore image: " + reqUrl);
+                        } else {
+                            String responseContentStr = new String(responseContentByteArr);
+                            Intent monitorIntent = new Intent(NetworkMonitor);
+                            monitorIntent.putExtra("type", 1);
+                            monitorIntent.putExtra("url", reqUrl.toString());
+                            monitorIntent.putExtra("body", responseContentStr);
+                            context.sendBroadcast(monitorIntent);
+                            if (LOGD) {
+                                Log.d(TAG, reqUrl.toString() + " " + contentType + " body: " + responseContentStr);
+                            }
+                        }
                     }
                 }
                 
