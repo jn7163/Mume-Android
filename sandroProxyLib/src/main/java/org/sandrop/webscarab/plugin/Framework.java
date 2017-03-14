@@ -439,7 +439,7 @@ public class Framework {
             _logger.finest("storage skipped. Url is in blacklist");
             return false;
         }
-        return true;
+        return _model.haveValidStore();
     }
     
     public long createConversation(Request request, Date when, int type, ConnectionDescriptor connectionDescriptor) {
