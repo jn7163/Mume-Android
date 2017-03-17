@@ -502,19 +502,11 @@ public class MainActivity extends Activity {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         
         // checking for directory to write data...
-        String dirName = pref.getString(PreferenceUtils.dataStorageKey, null);
+        File dirName = PreferenceUtils.getDataStorageDir(getApplicationContext());
         if (dirName == null){
-            File dataDir = getExternalCacheDir();
-            if (PreferenceUtils.IsDirWritable(dataDir)){
-                pref.edit().putString(PreferenceUtils.dataStorageKey, dataDir.getAbsolutePath()).commit();
-            }else{
-                Toast.makeText(this, R.string.data_storage_missing, Toast.LENGTH_LONG).show();
-            }
-        }else{
-            File dataStorage = new File(dirName);
-            if (!PreferenceUtils.IsDirWritable(dataStorage)){
-                Toast.makeText(this, R.string.data_storage_missing, Toast.LENGTH_LONG).show();
-            }
+            Toast.makeText(this, R.string.data_storage_missing, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, dirName.getAbsolutePath(), Toast.LENGTH_LONG).show();
         }
         
         // if not set we set to 9008

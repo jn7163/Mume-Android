@@ -39,12 +39,11 @@ import org.sandroproxy.constants.Constants;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PreferenceUtils {
     
 
-    public static String dataStorageKey = "preference_proxy_data_storage";
-    public static String dataLargeSize = "preference_performance_data_large_size";
     public static String proxyTransparentKey = "preference_proxy_transparent";
     public static String proxyTransparentActiveKey = "preference_proxy_transparent_active";
     public static String proxyTransparentHostNameKey = "preference_proxy_transparent_hostname";
@@ -97,20 +96,16 @@ public class PreferenceUtils {
     }
     
     public static File getDataStorageDir(Context context){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        String dirName = pref.getString(dataStorageKey, null);
-        if (dirName != null && !dirName.equals("")){
-            File dataDir = new File(dirName);
-            if (IsDirWritable(dataDir)){
-                return dataDir;
-            }
-        }else{
-            File dataDir = context.getExternalCacheDir();
-            if (IsDirWritable(dataDir)){
-                pref.edit().putString(dataStorageKey, dataDir.getAbsolutePath()).commit();
-                return dataDir;
-            }
+
+        File dataDir = context.getExternalCacheDir();
+        if (IsDirWritable(dataDir)){
+            return dataDir;
         }
+        dataDir = context.getExternalCacheDir();
+        if (IsDirWritable(dataDir)){
+            return dataDir;
+        }
+
         return null;
     }
     
@@ -170,8 +165,12 @@ public class PreferenceUtils {
     
     
     public static boolean IsDirWritable(File dir){
-        if (dir != null && dir.exists() && dir.isDirectory() && dir.canWrite()){
-            return true;
+        if (dir != null ){
+            if (dir.exists() && dir.isDirectory() && dir.canWrite())
+                return true;
+            Log.i("PreferenceUtils", dir.getAbsolutePath()+ " exists: " + dir.exists());
+            Log.i("PreferenceUtils", dir.getAbsolutePath()+ " isDirectory: " + dir.isDirectory());
+            Log.i("PreferenceUtils", dir.getAbsolutePath()+ " canWrite: " + dir.canWrite());
         }
         return false;
     }
