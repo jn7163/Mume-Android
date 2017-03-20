@@ -96,7 +96,6 @@ public class Proxy implements Plugin {
     private boolean _storeSslAsPcap = false;
     private Map<Integer, CheckOptionApp> _appOptions = null;
     
-    private File storageDir = null;
     private File pcapStorageDir = null;
 
     private ProxyUI _ui = null;
@@ -154,18 +153,17 @@ public class Proxy implements Plugin {
         parseListenerConfig();
         _certGenerator = null;
         try {
-            File dataStorageDir = PreferenceUtils.getDataStorageDir(_framework.getAndroidContext());
+            File cacheStorageDir = _framework.getAndroidContext().getExternalCacheDir();
             
-            if (dataStorageDir == null){
+            if (cacheStorageDir == null){
                 String errorText = "ERROR \nNo external storage available...";
                 _logger.fine(errorText);
                 _logger.fine("Make external sdcard available to android");
                 return;
             }
-            _logger.fine("Using " + dataStorageDir.getAbsolutePath() + " for data storage");
-            storageDir = dataStorageDir;
-            if (storageDir.exists()){
-                File pcapStorage = new File(dataStorageDir.getAbsoluteFile() + "/pcap");
+            _logger.fine("Using " + cacheStorageDir.getAbsolutePath() + " for data storage");
+            if (cacheStorageDir.exists()){
+                File pcapStorage = new File(cacheStorageDir.getAbsoluteFile() + "/pcap");
                 if (!pcapStorage.exists()){
                     pcapStorage.mkdir();
                 }
@@ -192,7 +190,7 @@ public class Proxy implements Plugin {
                 _logger.fine("Error getting custom CA certificate: Invalid file path");
             }
             
-            _webSocketManager = new ExtensionWebSocket(SqlLiteStore.getInstance(_framework.getAndroidContext(), dataStorageDir.getAbsolutePath()));
+            _webSocketManager = new ExtensionWebSocket(SqlLiteStore.getInstance(_framework.getAndroidContext(), cacheStorageDir.getAbsolutePath()));
         } catch (NoClassDefFoundError e) {
             _certGenerator = null;
         } catch (Exception e) {
@@ -204,11 +202,7 @@ public class Proxy implements Plugin {
     public Map<Integer, CheckOptionApp> getAppOptions(){
         return _appOptions;
     }
-    
-    public File getStorageDir(){
-        return storageDir;
-    }
-    
+
     public File getPcapStorageDir(){
         return pcapStorageDir;
     }

@@ -38,6 +38,7 @@ import org.sandroproxy.constants.Constants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -94,18 +95,18 @@ public class PreferenceUtils {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         return pref.getString(proxyPort, "8008");
     }
-    
+
     public static File getDataStorageDir(Context context){
-
-        File dataDir = context.getExternalCacheDir();
+        File dataDir = context.getFilesDir();
         if (IsDirWritable(dataDir)){
             return dataDir;
         }
-        dataDir = context.getExternalCacheDir();
-        if (IsDirWritable(dataDir)){
-            return dataDir;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            dataDir = context.getNoBackupFilesDir();
+            if (IsDirWritable(dataDir)){
+                return dataDir;
+            }
         }
-
         return null;
     }
     
